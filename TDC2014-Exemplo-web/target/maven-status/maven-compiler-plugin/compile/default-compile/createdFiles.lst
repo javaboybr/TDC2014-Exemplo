@@ -1,0 +1,4 @@
+br/com/tdc2014/services/Webservice.class
+br/com/tdc2014/jobs/Tarefa.class
+br/com/tdc2014/jobs/GeradorChaveSessao.class
+br/com/tdc2014/config/ApplicationConfig.class
