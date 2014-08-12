@@ -33,9 +33,9 @@ public class Webservice {
     @Context
     private UriInfo context;
     @Resource(lookup = "MyExec")
-    private ManagedExecutorService highPrioExecutor;
+    private ManagedExecutorService executorService;
     @Resource(lookup = "MyThreadFacs")
-    private ManagedThreadFactory threadFac;
+    private ManagedThreadFactory threadFactory;
     private static final Logger logger = Logger.getLogger(Webservice.class);
     @EJB
     private Sessao session;
@@ -47,7 +47,7 @@ public class Webservice {
         try {
             Map<String, String> result = new TreeMap<>();
             //verifica uma chave de sessao e aguarda o retorno da thread
-            Future<String> submit = (Future<String>) highPrioExecutor.submit(new Tarefa(key, session));
+            Future<String> submit = (Future<String>) executorService.submit(new Tarefa(key, session));
             result.put("status", submit.get());
             result.put("object", "none");
             result.put("context", context.getPath());
@@ -65,7 +65,7 @@ public class Webservice {
         Map<String, String> result = new TreeMap<>();
         UUID sessionKey = UUID.randomUUID();
         //gera uma chave de sessao e nao espera o fim da thread
-        threadFac.newThread(new GeradorChaveSessao(sessionKey.toString(), session, false)).start();
+        threadFactory.newThread(new GeradorChaveSessao(sessionKey.toString(), session, false)).start();
         result.put("status", "success");
         result.put("session-key", sessionKey.toString());
         return new Gson().toJson(result);
@@ -90,7 +90,7 @@ public class Webservice {
         Map<String, String> result = new TreeMap<>();
         UUID sessionKey = UUID.randomUUID();
         //Força um erro de interrupçao na criaçao de uma thread gerenciada
-        threadFac.newThread(new GeradorChaveSessao(sessionKey.toString(), session, true)).start();
+        threadFactory.newThread(new GeradorChaveSessao(sessionKey.toString(), session, true)).start();
         result.put("status", "");
         return new Gson().toJson(result);
     }
